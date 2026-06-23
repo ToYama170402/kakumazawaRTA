@@ -1,17 +1,39 @@
-# hoge
+# kakumazawaRTA
 
-A new Flutter project.
+## 概要
 
-## Getting Started
+`kakumazawaRTA` は金沢大学の登学をタイムアタックするプラットフォーム/モバイルアプリです。
 
-This project is a starting point for a Flutter application.
+## 前提条件
 
-A few resources to get you started if this is your first Flutter project:
+- Git
+- Nix flake
+- direnv
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## 開発環境のセットアップ
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+git clone <repo-url>
+cd kakumazawaRTA
+direnv allow
+```
+
+### Nix devShell (推奨)
+
+このリポジトリには `flake.nix` が含まれており、開発環境を `nix` のdevShellで再現できます。Nixを使うと `flutter`、`jdk`、Android SDK等の依存がシェル内で利用可能になります。
+
+### direnv / .envrc
+
+このリポジトリには `.envrc` が含まれており、`direnv` を使ってシェル環境を自動設定できます。`direnv` を有効にしておくと、ディレクトリ移動時に `use flake` などの環境設定が自動で読み込まれます。
+
+`direnv` を併用することで `nix develop` によるdevShellのセットアップがスムーズになります。
+
+## プロジェクト構成（主要ディレクトリ）
+
+- `lib/` — アプリのDartソースコード（エントリ: `lib/main.dart`）
+- `android/` — Androidネイティブ周りの設定とビルドファイル
+- `ios/` — iOSネイティブ周りの設定とビルドファイル
+- `test/` — ユニット・ウィジェットテスト
+- `pubspec.yaml` — 依存関係とメタデータ
+
+主要ファイル: `lib/main.dart` を参照してアプリの入口を確認してください。
