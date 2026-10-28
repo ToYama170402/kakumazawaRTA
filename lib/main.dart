@@ -3,6 +3,14 @@ import 'package:flutter/material.dart';
 import 'routes/route_repository.dart';
 import 'routes/route_screen.dart';
 import 'runs/secure_run_lab_screen.dart';
+import 'runs/pending_run_queue.dart';
+import 'runs/run_submission_request.dart';
+import 'runs/submit_run_http_uploader.dart';
+import 'runs/startup_retry_gate.dart';
+import 'runs/secure_run_submitter.dart';
+import 'security/encrypted_run_storage.dart';
+import 'security/run_key_manager.dart';
+import 'security/secure_run_session_manager.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +22,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final submitter = _buildStartupRetrySubmitter();
     return MaterialApp(
       title: 'kakumazawaRTA',
       theme: ThemeData(
@@ -23,8 +32,28 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: MainMenuScreen(repository: RouteRepository.production()),
+      home: StartupRetryGate(
+        retryAction: submitter == null ? () async {} : submitter.retryDueRuns,
+        child: MainMenuScreen(repository: RouteRepository.production()),
+      ),
     );
+  }
+}
+
+SecureRunSubmitter? _buildStartupRetrySubmitter() {
+  try {
+    final sessionManager = SecureRunSessionManager(
+      keyManager: FlutterSecureRunKeyManager(),
+      storage: FileEncryptedRunStorage(),
+    );
+    return SecureRunSubmitter(
+      secureRunSessionManager: sessionManager,
+      uploader: HttpSubmitRunUploader(),
+      requestFactory: const DemoRunSubmissionRequestFactory(),
+      pendingRunQueue: FilePendingRunQueue(),
+    );
+  } catch (_) {
+    return null;
   }
 }
 
