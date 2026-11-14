@@ -21,7 +21,9 @@ class RunSubmissionRequest {
 
   Map<String, dynamic> toJson() {
     // サーバー (submit-run) の検証に合わせ、t は開始からの経過秒数にする。
-    final origin = locationHistory.isEmpty ? null : locationHistory.first.timestamp;
+    final origin = locationHistory.isEmpty
+        ? null
+        : locationHistory.first.timestamp;
     return <String, dynamic>{
       'device_identifier': deviceIdentifier,
       'run_id': runId,
@@ -36,8 +38,7 @@ class RunSubmissionRequest {
               'lng': point.longitude,
               't': origin == null
                   ? 0.0
-                  : point.timestamp.difference(origin).inMilliseconds /
-                        1000.0,
+                  : point.timestamp.difference(origin).inMilliseconds / 1000.0,
             },
           )
           .toList(growable: false),

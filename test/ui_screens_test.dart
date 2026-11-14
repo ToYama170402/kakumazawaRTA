@@ -130,9 +130,7 @@ void main() {
     expect(find.text('開始ボタンを押してください'), findsOneWidget);
   });
 
-  testWidgets('計測フロー: 入域で開始、ゴールで停止し、ネーム入力を経て確定する', (
-    tester,
-  ) async {
+  testWidgets('計測フロー: 入域で開始、ゴールで停止し、ネーム入力を経て確定する', (tester) async {
     final base = DateTime.utc(2026, 6, 30, 8);
     GeoPoint at(double lat, double lng, int sec) => GeoPoint(
       latitude: lat,
@@ -196,8 +194,7 @@ void main() {
 
     await tester.enterText(find.byType(TextField), 'たろう');
     await tester.tap(find.text('この内容で登録する'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     expect(finishedNickname, 'たろう');
     expect(finishedHistory, isNotNull);

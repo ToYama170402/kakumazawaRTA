@@ -139,10 +139,7 @@ class _RankingScreenState extends State<RankingScreen> {
     }
     if (_error != null) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(_error!),
-        ),
+        child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!)),
       );
     }
     if (_entries.isEmpty) {
@@ -156,9 +153,7 @@ class _RankingScreenState extends State<RankingScreen> {
         return ListTile(
           leading: CircleAvatar(child: Text('${entry.rank}')),
           title: Text(entry.nickname),
-          subtitle: Text(
-            '${entry.organizationCode} ・ ${entry.termIdentifier}',
-          ),
+          subtitle: Text('${entry.organizationCode} ・ ${entry.termIdentifier}'),
           trailing: Text(
             '${entry.totalSeconds.toStringAsFixed(1)} 秒'
             '${entry.rankGrade != null ? ' ・ ${entry.rankGrade}' : ''}',

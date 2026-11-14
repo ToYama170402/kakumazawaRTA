@@ -91,8 +91,8 @@ class _MeasuringScreenState extends State<MeasuringScreen> {
   Future<void> _goToNameEntry(List<GeoPoint> history) async {
     final totalSeconds = history.length >= 2
         ? history.last.timestamp
-              .difference(history.first.timestamp)
-              .inMilliseconds /
+                  .difference(history.first.timestamp)
+                  .inMilliseconds /
               1000.0
         : 0.0;
     final nickname = await Navigator.of(context).push<String>(
@@ -170,10 +170,7 @@ class _MeasuringScreenState extends State<MeasuringScreen> {
               ),
               const Spacer(),
               if (_phase == MeasuringPhase.waitingStart && !_armed)
-                FilledButton(
-                  onPressed: _arm,
-                  child: const Text('計測開始'),
-                ),
+                FilledButton(onPressed: _arm, child: const Text('計測開始')),
             ],
           ),
         ),

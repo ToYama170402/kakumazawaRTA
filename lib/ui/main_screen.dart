@@ -87,9 +87,9 @@ class _MainScreenState extends State<MainScreen> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('送信できなかったため、再送待ちに保存しました。')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('送信できなかったため、再送待ちに保存しました。')));
     }
   }
 
