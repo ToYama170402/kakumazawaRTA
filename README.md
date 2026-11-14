@@ -80,3 +80,24 @@ supabase db push
 supabase functions deploy submit-run
 deno test supabase/functions/submit-run/validation_test.ts
 ```
+
+## API: rankings
+
+順位表の集計APIです。集計対象は `status = 'official'` の記録のみで、
+過去月のデータは削除せず保持します。
+
+- 端点: `GET /functions/v1/rankings`
+- クエリパラメータ:
+  - `period`: `current`（既定、今月） / `all`（歴代殿堂） / `YYYY-MM`（月指定）
+  - `organization_code`: 学域・学類によるフィルタ（任意）
+  - `route_id`: ルートによるフィルタ（任意、UUID）
+  - `limit`: 件数（任意、既定100、最大1000）
+- 応答: `{ "success": true, "term_identifier": "2026-06", "rankings": [ { "rank": 1, "run_id": "...", "nickname": "...", "organization_code": "...", "route_id": "...", "total_seconds": 345.2, "rank_grade": "S", "term_identifier": "2026-06", "created_at": "..." } ] }`
+- 集計はDB関数 `get_rankings`（マイグレーション `20260627000000`）が行います。同タイムは同順位です。
+
+デプロイ:
+
+```bash
+supabase functions deploy rankings
+deno test supabase/functions/rankings/ranking_test.ts
+```
