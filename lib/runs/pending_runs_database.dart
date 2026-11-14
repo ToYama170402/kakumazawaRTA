@@ -159,9 +159,7 @@ class SqlitePendingRunQueue implements PendingRunQueue {
       runId: row['run_id'] as String,
       requestPayload: row['request_payload'] as String,
       retryCount: (row['retry_count'] as num).toInt(),
-      nextAttemptAt: DateTime.parse(
-        row['next_attempt_at'] as String,
-      ).toUtc(),
+      nextAttemptAt: DateTime.parse(row['next_attempt_at'] as String).toUtc(),
       isArchived: (row['is_archived'] as num).toInt() != 0,
     );
   }

@@ -96,8 +96,7 @@ class SecureRunSubmitter {
   }
 
   Future<String> _encryptedPayload(String runId) async {
-    final record =
-        await _secureRunSessionManager.encryptedRecordForRun(runId);
+    final record = await _secureRunSessionManager.encryptedRecordForRun(runId);
     if (record == null) {
       return '';
     }

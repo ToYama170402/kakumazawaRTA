@@ -51,10 +51,16 @@ void main() {
     final now = DateTime.utc(2026, 7, 1, 12);
 
     await queue.enqueue(
-      record(runId: 'due', nextAttemptAt: now.subtract(const Duration(minutes: 1))),
+      record(
+        runId: 'due',
+        nextAttemptAt: now.subtract(const Duration(minutes: 1)),
+      ),
     );
     await queue.enqueue(
-      record(runId: 'not-due', nextAttemptAt: now.add(const Duration(hours: 1))),
+      record(
+        runId: 'not-due',
+        nextAttemptAt: now.add(const Duration(hours: 1)),
+      ),
     );
 
     final due = await queue.dueRuns(now: now);
@@ -85,7 +91,9 @@ void main() {
     final archived = await queue.readByRunId('run-1');
     expect(archived!.isArchived, isTrue);
 
-    await queue.enqueue(record(runId: 'run-max', retryCount: 3, nextAttemptAt: past));
+    await queue.enqueue(
+      record(runId: 'run-max', retryCount: 3, nextAttemptAt: past),
+    );
     expect(await queue.shouldRetry('run-max'), isFalse);
     expect(await queue.shouldRetry('missing'), isFalse);
   });
