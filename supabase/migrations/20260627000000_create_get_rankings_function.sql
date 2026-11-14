@@ -52,4 +52,14 @@ comment on function public.get_rankings(text, text, uuid, integer)
 
 -- Edge Function (rankings) は anon キーで rpc を呼ぶため実行権限を付与する。
 -- runs テーブル自体にも select ポリシーがあるため、読み取り範囲は変わらない。
-grant execute on function public.get_rankings(text, text, uuid, integer) to anon, authenticated;
+-- anon / authenticated は Supabase 側の定義済みロールなので、存在する場合だけ
+-- 付与する（通常の PostgreSQL や CI の検証環境でも適用できるように）。
+do $$
+begin
+  if exists (select 1 from pg_roles where rolname = 'anon') then
+    grant execute on function public.get_rankings(text, text, uuid, integer) to anon;
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'authenticated') then
+    grant execute on function public.get_rankings(text, text, uuid, integer) to authenticated;
+  end if;
+end $$;
