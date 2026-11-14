@@ -6,6 +6,10 @@ import 'submit_run_http_uploader.dart';
 import '../security/secure_run_session_manager.dart';
 
 class SecureRunSubmitter {
+  /// 再送キューの request_payload には、平文のリクエストではなく
+  /// 暗号化済みレコードの JSON を保存する（Issue #28）。
+  /// 再送時は runId から復号し直すため、payload 自体は監査・整合確認用。
+
   SecureRunSubmitter({
     required SecureRunSessionManager secureRunSessionManager,
     required SubmitRunUploader uploader,
@@ -45,10 +49,10 @@ class SecureRunSubmitter {
         // Already exceeded max retries, archive it
         await _pendingRunQueue.markAsArchived(runId);
       } else {
-        // Queue for retry (payload will be empty since we couldn't decrypt)
+        // Queue for retry with the encrypted payload (Issue #28)
         final payloadRecord = PendingRunRecord(
           runId: runId,
-          requestPayload: '', // Placeholder, will retry decryption
+          requestPayload: await _encryptedPayload(runId),
           retryCount: retryCount,
           nextAttemptAt: DateTime.now().toUtc(),
         );
@@ -71,7 +75,7 @@ class SecureRunSubmitter {
         await _pendingRunQueue.enqueue(
           PendingRunRecord(
             runId: runId,
-            requestPayload: jsonEncode(request.toJson()),
+            requestPayload: await _encryptedPayload(runId),
             retryCount: 0,
             nextAttemptAt: DateTime.now().toUtc(),
           ),
@@ -89,6 +93,14 @@ class SecureRunSubmitter {
       }
       rethrow;
     }
+  }
+
+  Future<String> _encryptedPayload(String runId) async {
+    final record = await _secureRunSessionManager.encryptedRecordForRun(runId);
+    if (record == null) {
+      return '';
+    }
+    return jsonEncode(record.toJson());
   }
 
   /// Retries all due runs from the pending queue.

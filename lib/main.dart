@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'routes/route_repository.dart';
 import 'routes/route_screen.dart';
 import 'runs/secure_run_lab_screen.dart';
-import 'runs/pending_run_queue.dart';
+import 'runs/pending_runs_database.dart';
 import 'runs/run_submission_request.dart';
 import 'runs/submit_run_http_uploader.dart';
 import 'runs/startup_retry_gate.dart';
@@ -50,7 +50,7 @@ SecureRunSubmitter? _buildStartupRetrySubmitter() {
       secureRunSessionManager: sessionManager,
       uploader: HttpSubmitRunUploader(),
       requestFactory: const DemoRunSubmissionRequestFactory(),
-      pendingRunQueue: FilePendingRunQueue(),
+      pendingRunQueue: SqlitePendingRunQueue(),
     );
   } catch (_) {
     return null;
