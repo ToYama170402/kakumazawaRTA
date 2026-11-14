@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  deno:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Check formatting
+        run: deno fmt --check supabase/functions
+      - name: Lint
+        run: deno lint supabase/functions
+      - name: Type-check pure logic modules
+        # index.ts は esm.sh 依存のため型チェック対象に含める。
+        # テスト経由で他の関数（rankings等）の純粋モジュールも型チェックされる
+        run: deno check supabase/functions/submit-run/validation.ts supabase/functions/submit-run/index.ts
+      - name: Test
+        run: deno test supabase/functions
+
+  migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply all migrations in order
+        run: |
+          for f in supabase/migrations/*.sql; do
+            echo "== $f"
+            psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 -f "$f"
+          done
+      - name: Smoke test schema
+        run: |
+          psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          insert into public.routes (id, category, route_name, goal_bounds, start_bounds, max_velocity_threshold, avg_velocity_threshold)
+          values ('123e4567-e89b-42d3-a456-426614174001', '徒歩', 'CI確認用',
+                  '{"min_lat":36.54,"max_lat":36.55,"min_lng":136.70,"max_lng":136.71}',
+                  '{"min_lat":36.53,"max_lat":36.54,"min_lng":136.69,"max_lng":136.70}', 10, 8);
+          insert into public.runs (id, device_identifier, nickname, organization_code, route_id, total_seconds, status, term_identifier)
+          values ('123e4567-e89b-42d3-a456-426614174000', 'ci', 'CI太郎', 'science',
+                  '123e4567-e89b-42d3-a456-426614174001', 345.2, 'official', '2026-06');
+          SQL
