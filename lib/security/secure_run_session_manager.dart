@@ -47,6 +47,11 @@ class SecureRunSessionManager {
     return encrypted;
   }
 
+  /// 保存済みの暗号化レコードを返す（再送キューの payload 保存用、Issue #28）。
+  Future<EncryptedRunRecord?> encryptedRecordForRun(String runId) async {
+    return storage.readByRunId(runId);
+  }
+
   Future<List<GeoPoint>> decryptForSend(String runId) async {
     final encrypted = await storage.readByRunId(runId);
     if (encrypted == null) {
